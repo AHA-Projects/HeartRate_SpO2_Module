@@ -4,29 +4,29 @@
 // Any opinions, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.
 
 // --- Include Libraries ---
-#include <Wire.h> // Required for I2C communication (MAX30105)
-#include "MAX30105.h" // SparkFun MAX30105 library
+#include <Wire.h> // Required for communication (MAX30105)
+#include "MAX30105.h" // SparkFun MAX30105 sensor library
 #include "heartRate.h" // SparkFun Heart Rate algorithm
+
+
 // --- Adafruit Display Libraries ---
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
-#include <SPI.h>             // Required for SPI communication (ST7789)
+#include <SPI.h>             // Required for SPI communication for the OLED(ST7789)
 
-// --- Display Pin Definitions (Adjust if needed) ---
-// Using common SPI pins and example CS, DC, RST pins for ESP32
+// --- Display Pin Definitions ---
 #define TFT_CS   33  // Chip Select control pin
 #define TFT_DC    25  // Data/Command select pin
-#define TFT_RST    26  // Reset pin (Changed from 26 to 5 to free up 26 for buzzer)
-// MOSI and SCK are typically fixed hardware SPI pins on ESP32 (e.g., 23 and 18)
-// Wire display MOSI to ESP32 MOSI, display SCK to ESP32 SCK
+#define TFT_RST    26  // Reset pin 
 
-// --- Buzzer Pin Definition ---
+
+// --- Buzzer Pin Definition --- (Check only if buzzer used)
 const int buzzerPin = 12; // Buzzer connected to GPIO 12
 
 // --- Display Object ---
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
-// --- Colors ---
+// defining variables for color channels to be used later. (Variables are temporary storage location for repetitive usage of certain information, it makes the code more readable)
 #define BLACK   0x0000
 #define WHITE   0xFFFF
 #define BLUE    0x001F
@@ -43,14 +43,22 @@ byte rates[RATE_SIZE];    // Array of heart rates readings
 byte rateSpot = 0;        // Index for the rates array
 long lastBeat = 0;        // Time (millis()) of the last detected beat
 
+
+
 float beatsPerMinute; // Current instantaneous BPM from last two beats
 int beatAvg = 0;      // Averaged BPM
+
+
 
 // --- Finger Detection Threshold ---
 const long IR_DETECTION_THRESHOLD = 30000; // Threshold for considering a finger is present
 
+
+
 // --- State Variable for Display ---
 bool fingerPresent = false; // Track if finger was detected in the previous loop iteration
+
+
 
 
 void setup() {
@@ -64,7 +72,7 @@ void setup() {
   // --- Display Initialization ---
   // For a 320x170 display, init with these dimensions first
   tft.init(170, 320);
-  // Set rotation (adjust this value 0, 1, 2, or 3 to match your desired orientation)
+  // Set rotation
   tft.setRotation(3); // Using rotation 3
 
   tft.fillScreen(BLACK); // Clear the entire screen
@@ -75,7 +83,6 @@ void setup() {
 
   // --- Sensor Initialization ---
   Serial.println("Initializing MAX30105...");
-  // Use default I2C port (Wire), 400kHz speed
   if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) {
     Serial.println("MAX30105 was not found. Please check wiring/power.");
     // Display sensor error on screen
@@ -90,7 +97,7 @@ void setup() {
   }
   Serial.println("MAX30105 initialized.");
 
-  // Configure sensor with default settings - adjust if needed for better readings
+  // Configure sensor with default settings
   particleSensor.setup();
   particleSensor.setPulseAmplitudeRed(0x1F); // Medium Red LED
   particleSensor.setPulseAmplitudeIR(0x1F); // Medium IR LED
