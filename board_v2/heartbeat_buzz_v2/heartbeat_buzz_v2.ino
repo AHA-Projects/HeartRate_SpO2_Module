@@ -143,8 +143,7 @@ void loop() {
         beatAvg /= RATE_SIZE;
 
         // --- Display Update for BPM and Status ---
-        // Clear the area where BPM and status are shown (below the initial message)
-        // Only clear if a beat was detected and average is updated to avoid flicker
+
         tft.fillRect(0, 40, tft.width(), tft.height() - 40, BLACK);
 
         // Display Average BPM
@@ -175,7 +174,7 @@ void loop() {
         // --- Buzzer Logic: Mimic Heartbeat ---
         buzzHeartbeat(delta); // Trigger a heartbeat buzz based on the time since the last beat
 
-        // Serial debug output whenever average is updated (optional)
+        // Serial debug output whenever average is updated for debugging purposes
         Serial.print("IR="); Serial.print(irValue);
         Serial.print(", instant BPM="); Serial.print(beatsPerMinute);
         Serial.print(", Avg BPM="); Serial.println(beatAvg);
@@ -199,10 +198,6 @@ void loop() {
      // Ensure buzzer is off when no finger is detected
      digitalWrite(buzzerPin, LOW);
   }
-
-
-  // A small delay can help stabilize readings and display updates,
-  // but be careful not to make it too long as it affects responsiveness.
   delay(10);
 }
 
@@ -221,9 +216,7 @@ void displayNoFinger() {
 
 // --- Buzzer function to mimic heartbeat rhythm ---
 void buzzHeartbeat(long beatInterval_ms) {
-  // Simple two-tone buzz to simulate a heartbeat (lub-dub)
-  // The timing between beats is controlled by the heart rate algorithm,
-  // but the internal timing of the buzz can be fixed or slightly varied.
+
 
   if (beatInterval_ms > 0) {
   for (int i =0 ; i < 10; i++)
